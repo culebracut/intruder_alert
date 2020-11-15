@@ -307,7 +307,8 @@ main (int argc, char *argv[])
 
   /* Finally render the osd output */
 #ifdef PLATFORM_TEGRA
-  transform = gst_element_factory_make ("queue", "nvegl-transform");
+  transform = gst_element_factory_make ("nvegltransform", "nvegl-transform");
+  //transform = gst_element_factory_make ("queue", "nvegl-transform");
 #endif
   sink = gst_element_factory_make ("nveglglessink", "nvvideo-renderer");
   //sink = gst_element_factory_make ("fakesink", "nvvideo-renderer");
