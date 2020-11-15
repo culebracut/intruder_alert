@@ -1,2 +1,3 @@
 deepstream_opencv_test
-deepstream_opencv_test.o
+*.o
+*.so
