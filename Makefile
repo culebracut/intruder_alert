@@ -1,4 +1,4 @@
-APP:= deepstream_opencv_test
+APP:= intruder_alert
 
 TARGET_DEVICE = $(shell gcc -dumpmachine | cut -f1 -d -)
 
