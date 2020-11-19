@@ -1,3 +1,5 @@
 intruder_alert
 *.o
 *.so
+nvdsinfer_custom_impl_Yolo/libnvdsinfer_custom_impl_Yolo.so
+nvdsinfer_custom_impl_Yolo/nvdsparsebbox_Yolo.o

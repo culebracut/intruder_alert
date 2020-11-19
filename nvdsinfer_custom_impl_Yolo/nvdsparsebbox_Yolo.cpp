@@ -73,6 +73,27 @@ static void addBBoxProposalYoloV4(const float bx, const float by, const float bw
     bbi.detectionConfidence = maxProb;
     bbi.classId = maxIndex;
     binfo.push_back(bbi);
+
+    printf("Bounding Box - Probability, Index  : ");
+    printf( "%6.4lf", maxProb );
+
+    printf("%4s", " ");
+    if (maxIndex==0)
+    {
+        printf("%6s", "person");
+    }
+    else if (maxIndex == 2)
+    {
+        printf("%3s", "vehicle");
+    }
+    else
+    {
+        printf("%d", maxIndex);
+    }
+    
+    //printf("%4s", " ");
+    //printf("  %2f  %2f  %2f  %2f", bx1,by1,bx2,by2);
+    printf("\n");
 }
 
 static std::vector<NvDsInferParseObjectInfo>
@@ -105,20 +126,9 @@ decodeYoloV4Tensor(
             }
         }
 
-        // if (0 == 0)
         if (maxProb > detectionParams.perClassPreclusterThreshold[maxIndex])
         {
-            if (maxIndex != 2){
-                printf("addBBoxProposalYoloV4  : ");
-                printf( "%6.4lf", maxProb );
-                printf("%4s", " ");
-                printf("%d", maxIndex);
-                printf("%4s", " ");
-                printf("  %2f  %2f  %2f  %2f", bx1,by1,bx2,by2);
-                printf("\n");
-            }
-
-                addBBoxProposalYoloV4(bx1, by1, bx2, by2, netW, netH, maxIndex, maxProb, binfo);
+            addBBoxProposalYoloV4(bx1, by1, bx2, by2, netW, netH, maxIndex, maxProb, binfo);
         }
 
         bbox_location += 4;

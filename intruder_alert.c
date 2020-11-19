@@ -5,16 +5,20 @@
 #include "gstnvdsmeta.h"
 #include <string.h>
 
+// max length of output string
 #define MAX_DISPLAY_LEN 64
 
-#define PGIE_CLASS_ID_VEHICLE 0
-#define PGIE_CLASS_ID_PERSON 2
+// resnet class id
+//#define PGIE_CLASS_ID_VEHICLE 0
+//#define PGIE_CLASS_ID_PERSON 2
+
+// TW: yolo class id
+#define PGIE_CLASS_ID_VEHICLE 2
+#define PGIE_CLASS_ID_PERSON 0
 
 /* The muxer output resolution must be set if the input streams will be of
  * different resolution. The muxer will scale all the input frames to this
  * resolution. */
-/* #define MUXER_OUTPUT_WIDTH 640
-#define MUXER_OUTPUT_HEIGHT 480 */
 #define MUXER_OUTPUT_WIDTH 1920
 #define MUXER_OUTPUT_HEIGHT 1080
 
@@ -27,13 +31,47 @@
 #define MEMORY_FEATURES "memory:NVMM"
 
 gint frame_number = 0;
+
+// resnet10 classes. yolo classes defined in labels.txt
 gchar pgie_classes_str[4][32] = { "Vehicle", "TwoWheeler", "Person",
   "Roadsign"
 };
 
-/* osd_sink_pad_buffer_probe  will extract metadata received on OSD sink pad
- * and update params for drawing rectangle, object information etc. */
+/*
+ example sink pad buffer probe
+*/
+static GstPadProbeReturn
+example_sink_pad_buffer_probe (GstPad * pad, GstPadProbeInfo * info,
+    gpointer u_data)
+{
+  NvDsMetaList *l_frame = NULL;
+  NvDsMetaList *l_obj = NULL;
+  NvDsObjectMeta *obj_meta = NULL;
 
+  GstBuffer *buf = (GstBuffer *) info->data;
+  NvDsBatchMeta *batch_meta = gst_buffer_get_nvds_batch_meta (buf);
+
+  for (l_frame = batch_meta->frame_meta_list; l_frame != NULL;
+      l_frame = l_frame->next) {
+    NvDsFrameMeta *frame_meta = (NvDsFrameMeta *) (l_frame->data);
+    int offset = 0;
+    for (l_obj = frame_meta->obj_meta_list; l_obj != NULL; l_obj = l_obj->next) {
+      obj_meta = (NvDsObjectMeta *) (l_obj->data);
+      if (obj_meta->class_id == PGIE_CLASS_ID_VEHICLE) {
+        continue;
+      }
+      if (obj_meta->class_id == PGIE_CLASS_ID_PERSON) {
+        continue;
+      }
+    }
+  }
+
+	return GST_PAD_PROBE_OK;
+}
+
+/* osd_sink_pad_buffer_probe  will extract metadata received on OSD sink pad
+ * and update params for drawing rectangle, object information etc. 
+ * Outputs frame number, total object count, vehicle and person counts*/
 static GstPadProbeReturn
 osd_sink_pad_buffer_probe (GstPad * pad, GstPadProbeInfo * info,
     gpointer u_data)
@@ -50,6 +88,7 @@ osd_sink_pad_buffer_probe (GstPad * pad, GstPadProbeInfo * info,
 
   NvDsBatchMeta *batch_meta = gst_buffer_get_nvds_batch_meta (buf);
 
+  // increment counters
   for (l_frame = batch_meta->frame_meta_list; l_frame != NULL;
       l_frame = l_frame->next) {
     NvDsFrameMeta *frame_meta = (NvDsFrameMeta *) (l_frame->data);
@@ -65,6 +104,7 @@ osd_sink_pad_buffer_probe (GstPad * pad, GstPadProbeInfo * info,
         num_rects++;
       }
     }
+    
     display_meta = nvds_acquire_display_meta_from_pool (batch_meta);
     NvOSD_TextParams *txt_params = &display_meta->text_params[0];
     display_meta->num_labels = 1;
@@ -307,11 +347,11 @@ main (int argc, char *argv[])
 
   /* Finally render the osd output */
 #ifdef PLATFORM_TEGRA
-  transform = gst_element_factory_make ("nvegltransform", "nvegl-transform");
-  //transform = gst_element_factory_make ("queue", "nvegl-transform");
+  //transform = gst_element_factory_make ("nvegltransform", "nvegl-transform");
+  transform = gst_element_factory_make ("queue", "nvegl-transform");
 #endif
-  sink = gst_element_factory_make ("nveglglessink", "nvvideo-renderer");
-  //sink = gst_element_factory_make ("fakesink", "nvvideo-renderer");
+  //sink = gst_element_factory_make ("nveglglessink", "nvvideo-renderer");
+  sink = gst_element_factory_make ("fakesink", "nvvideo-renderer");
 
   if (!pgie || !nvvidconv || !caps_filter || !dsexample
       || !nvosd || !sink) {
@@ -399,6 +439,18 @@ main (int argc, char *argv[])
     gst_pad_add_probe (osd_sink_pad, GST_PAD_PROBE_TYPE_BUFFER,
         osd_sink_pad_buffer_probe, NULL, NULL);
   gst_object_unref (osd_sink_pad);
+
+/*
+  add probe for ds-example
+*/
+  GstPad *example_sink_pad = NULL;
+  example_sink_pad = gst_element_get_static_pad (dsexample, "sink");
+  if (!example_sink_pad)
+    g_print ("Unable to get example sink pad\n");
+  else
+    gst_pad_add_probe (example_sink_pad, GST_PAD_PROBE_TYPE_BUFFER,
+        example_sink_pad_buffer_probe, NULL, NULL);
+  gst_object_unref (example_sink_pad);
 
   /* Set the pipeline to "playing" state */
   g_print ("Now playing: %s\n", argv[1]);
