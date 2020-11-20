@@ -38,7 +38,7 @@ TARGET_OBJS:= $(TARGET_OBJS:.cu=.o)
 all: $(TARGET_LIB)
 
 %.o: %.cpp $(INCS) Makefile
-	$(CC) -c -o $@ $(CFLAGS) $<
+	$(CC) -c -ggdb -o $@ $(CFLAGS) $<
 
 %.o: %.cu $(INCS) Makefile
 	$(NVCC) -c -o $@ --compiler-options '-fPIC' $<

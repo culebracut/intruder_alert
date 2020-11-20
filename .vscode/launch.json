@@ -5,13 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "deepstream_opencv",
+            "name": "intruder_alert",
             "type": "cppdbg",
             "request": "launch",
             //"program": "${fileDirname}/${fileBasenameNoExtension}",
             "program": "${workspaceFolder}/intruder_alert",
-            "args": ["file:///data/video/whitecenter/driveway3.mp4", "intruder_alert_pgie_yoloV4_config.txt"],
-            //"args": ["file:///data/video/whitecenter/driveway3.mp4", "intruder_alert_pgie_resnet10_config.txt"],
+            "args": ["file:///data/video/whitecenter/driveway3.mp4", "config/intruder_alert_pgie_yoloV4_config.txt"],
+            //"args": ["file:///data/video/whitecenter/driveway3.mp4", "config/intruder_alert_pgie_resnet10_config.txt"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
