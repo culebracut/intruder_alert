@@ -71,7 +71,7 @@ is-classifier=0
 cluster-mode=2
 maintain-aspect-ratio=1
 parse-bbox-func-name=NvDsInferParseCustomYoloV4
-custom-lib-path=/home/system/workspace/intruder_alert/nvdsinfer_custom_impl_Yolo/libnvdsinfer_custom_impl_Yolo.so
+custom-lib-path=/home/system/workspace/intruder_alert/src/nvdsinfer_custom_impl_Yolo/libnvdsinfer_custom_impl_Yolo.so
 #scaling-filter=0
 #scaling-compute-hw=0
 
