@@ -1,3 +1,8 @@
+/*
+switch between yolo and resnet;
+  1 - change class id for vehicle and person
+  2 - modify model in launch.json
+*/
 
 #include <gst/gst.h>
 #include <glib.h>
@@ -9,12 +14,12 @@
 #define MAX_DISPLAY_LEN 64
 
 // resnet class id
-//#define PGIE_CLASS_ID_VEHICLE 0
-//#define PGIE_CLASS_ID_PERSON 2
+#define PGIE_CLASS_ID_VEHICLE 0
+#define PGIE_CLASS_ID_PERSON 2
 
 // TW: yolo class id
-#define PGIE_CLASS_ID_VEHICLE 2
-#define PGIE_CLASS_ID_PERSON 0
+//#define PGIE_CLASS_ID_VEHICLE 2
+//#define PGIE_CLASS_ID_PERSON 0
 
 /* The muxer output resolution must be set if the input streams will be of
  * different resolution. The muxer will scale all the input frames to this
@@ -347,11 +352,11 @@ main (int argc, char *argv[])
 
   /* Finally render the osd output */
 #ifdef PLATFORM_TEGRA
-  //transform = gst_element_factory_make ("nvegltransform", "nvegl-transform");
-  transform = gst_element_factory_make ("queue", "nvegl-transform");
+  transform = gst_element_factory_make ("nvegltransform", "nvegl-transform");
+  //transform = gst_element_factory_make ("queue", "nvegl-transform");
 #endif
-  //sink = gst_element_factory_make ("nveglglessink", "nvvideo-renderer");
-  sink = gst_element_factory_make ("fakesink", "nvvideo-renderer");
+  sink = gst_element_factory_make ("nveglglessink", "nvvideo-renderer");
+  //sink = gst_element_factory_make ("fakesink", "nvvideo-renderer");
 
   if (!pgie || !nvvidconv || !caps_filter || !dsexample
       || !nvosd || !sink) {
